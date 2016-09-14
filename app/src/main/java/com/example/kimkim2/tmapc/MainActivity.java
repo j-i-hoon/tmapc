@@ -198,11 +198,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     public void naviGuide() {
         TMapPoint point1 = new TMapPoint(latitude_plic, longitude_plic);
         TMapPoint point2 = new TMapPoint(des_latitude_plic, des_longitude_plic);
-
         TMapData tmapdata = new TMapData();
+        final List<NodeData> nodeDatas=new ArrayList<NodeData>();
 
         tmapdata.findPathDataAllType(TMapData.TMapPathType.PEDESTRIAN_PATH,point1, point2, new TMapData.FindPathDataAllListenerCallback(){
             @Override
@@ -212,36 +213,38 @@ public class MainActivity extends AppCompatActivity {
 
                 int length = root.getElementsByTagName("Placemark").getLength();
                 for(int i=0; i<length; i++) {
+                    String a="";
                     Node placemark = root.getElementsByTagName("Placemark").item(i);
-
-                    Node tmapindex
-                            = ((Element)placemark).getElementsByTagName("tmap:index").item(0);
-
-                    Log.e
-                            ("PARSER", "tmap Index =" + tmapindex.getTextContent());
-
-                    Node nodeType
-                            = ((Element)placemark).getElementsByTagName("tmap:nodeType").item(0);
-                    Log.e
-                            ("PARSER", "nodeType =" + nodeType.getTextContent());
-
+                    Node tmapindex = ((Element)placemark).getElementsByTagName("tmap:index").item(0);
+                    String index=tmapindex.getTextContent();
+                    //Log.e("PARSER", "tmap Index =" + tmapindex.getTextContent());
+                    Node nodeType = ((Element)placemark).getElementsByTagName("tmap:nodeType").item(0);
+                    //Log.e("PARSER", "nodeType =" + nodeType.getTextContent());
+                    String nodetype=nodeType.getTextContent();
                     Node coordinate = ((Element)placemark).getElementsByTagName("coordinates").item(0);
-                    Log.e
-                            ("PARSER", "coordinate =" + coordinate.getTextContent());
-
-
+                    //Log.e("PARSER", "coordinate =" + coordinate.getTextContent());
+                    String coordinates=coordinate.getTextContent();
                     if(nodeType.getTextContent().equals("POINT")) {
                         Node turnType
                                 = ((Element) placemark).getElementsByTagName("tmap:turnType").item(0);
-                        String a = turnType.getTextContent();
-                        Log.e
-                                ("PARSER", "point 지점에서 =" + Turntype(a));
+                        a = Turntype(turnType.getTextContent());
+                        //Log.e("PARSER", "point 지점에서 =" + Turntype(a));
+                        nodeDatas.add(new NodeData(index,nodetype,coordinates,a));
                     }
-
-                    Log.e
-                            ("PARSER", " ");
-
+                    else nodeDatas.add(new NodeData(index, nodetype, coordinates));
                 }
+
+                Log.d("NODE","index :"+nodeDatas.get(0).index);
+                Log.d("NODE","nodetype :"+nodeDatas.get(0).nodeType);
+                Log.d("NODE","coordinate :"+nodeDatas.get(0).coordinate);
+                Log.d("NODE","turntype :"+nodeDatas.get(0).turntype);
+
+
+                Log.d("NODE","index :"+nodeDatas.get(1).index);
+                Log.d("NODE","nodetype :"+nodeDatas.get(1).nodeType);
+                Log.d("NODE","coordinate :"+nodeDatas.get(1).coordinate);
+                Log.d("NODE","turntype :"+nodeDatas.get(1).turntype);
+
 
             }
         });
