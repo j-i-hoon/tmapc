@@ -207,31 +207,85 @@ public class MainActivity extends AppCompatActivity {
         tmapdata.findPathDataAllType(TMapData.TMapPathType.PEDESTRIAN_PATH,point1, point2, new TMapData.FindPathDataAllListenerCallback(){
             @Override
             public void onFindPathDataAll(Document doc) {
-                doc.getDocumentElement().normalize();//dom tree가 xml문서의 구조대로 완성
-                Element root = doc.getDocumentElement();//루트 노드 가져오기
-                getNode(root);
+                doc.getDocumentElement().normalize();
+                Element root = doc.getDocumentElement();
+
+                int length = root.getElementsByTagName("Placemark").getLength();
+                for(int i=0; i<length; i++) {
+                    Node placemark = root.getElementsByTagName("Placemark").item(i);
+
+                    Node tmapindex
+                            = ((Element)placemark).getElementsByTagName("tmap:index").item(0);
+
+                    Log.e
+                            ("PARSER", "tmap Index =" + tmapindex.getTextContent());
+
+                    Node nodeType
+                            = ((Element)placemark).getElementsByTagName("tmap:nodeType").item(0);
+                    Log.e
+                            ("PARSER", "nodeType =" + nodeType.getTextContent());
+
+                    Node coordinate = ((Element)placemark).getElementsByTagName("coordinates").item(0);
+                    Log.e
+                            ("PARSER", "coordinate =" + coordinate.getTextContent());
+
+
+                    if(nodeType.getTextContent().equals("POINT")) {
+                        Node turnType
+                                = ((Element) placemark).getElementsByTagName("tmap:turnType").item(0);
+                        String a = turnType.getTextContent();
+                        Log.e
+                                ("PARSER", "point 지점에서 =" + Turntype(a));
+                    }
+
+                    Log.e
+                            ("PARSER", " ");
+
+                }
 
             }
         });
     }
 
-
-    public static void getNode(Node n) {
-
-        for (Node ch = n.getFirstChild(); ch != null; ch = ch.getNextSibling()) {
-            if (ch.getNodeType() == Node.ELEMENT_NODE) {
-
-                System.out.println(ch.getNodeName());
-
-                getNode(ch);
-
-            } else if (ch.getNodeType() == Node.TEXT_NODE && ch.getNodeValue().trim().length() != 0) {
-
-                System.out.println(ch.getNodeValue());
-
-            }
+    public String Turntype(String c)
+    {
+        switch (c)
+        {
+            case "11" : c="직진"; break;
+            case "12" : c="좌회전"; break;
+            case "13" : c="우회전"; break;
+            case "14" : c="U-turn"; break;
+            case "16" : c="8시 방향 좌회전"; break;
+            case "17" : c="10방향 좌회전"; break;
+            case "18" : c="2시 방향 우회전"; break;
+            case "19" : c="4시 방향 우회전"; break;
+            case "184" : c="첫번째 경유지"; break;
+            case "186" : c="두번째 경유지"; break;
+            case "187" : c="세번째 경유지"; break;
+            case "188" : c="네번째 경유지"; break;
+            case "189" : c="다섯번째 경유지"; break;
+            case "125" : c="육교"; break;
+            case "126" : c="지하보도"; break;
+            case "127" : c="계단 진입"; break;
+            case "128" : c="경사로 진입"; break;
+            case "129" : c="계단 + 경사로 진입"; break;
+            case "200" : c="출발지"; break;
+            case "201" : c="목적지"; break;
+            case "211" : c="횡단보도"; break;
+            case "212" : c="좌측 횡단보도"; break;
+            case "213" : c="우측 횡단보도"; break;
+            case "214" : c="8시 방향 횡단보도"; break;
+            case "215" : c="10시 방향 횡단보도"; break;
+            case "216" : c="2시 방향 횡단보도"; break;
+            case "217" : c="4시 방향 횡단보도"; break;
+            case "218" : c="엘리베이터"; break;
         }
+
+
+        return c;
     }
+
+
 
     public void findAllPoi() {
 
