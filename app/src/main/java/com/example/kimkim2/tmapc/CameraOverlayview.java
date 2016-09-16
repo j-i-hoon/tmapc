@@ -1,6 +1,7 @@
 package com.example.kimkim2.tmapc;
 
         import android.content.Context;
+        import android.content.Intent;
         import android.graphics.Bitmap;
         import android.graphics.BitmapFactory;
         import android.graphics.Canvas;
@@ -15,6 +16,11 @@ package com.example.kimkim2.tmapc;
         import android.os.Message;
         import android.util.Log;
         import android.view.View;
+
+        import org.w3c.dom.Node;
+
+        import java.util.ArrayList;
+        import java.util.List;
 
 /**
  * Created by 경석 on 2016-09-08.
@@ -42,11 +48,12 @@ public class CameraOverlayview extends View implements SensorEventListener {
     float mLowPassX;
     float mLowPassY;
     float mLowPassZ;
-
+    public static String nodetype;
     public static double sta_latitude;
     public static double sta_longitude;
     public static double des_latitude;
     public static double des_longitude;
+    public static double distance;
     Bitmap mPalaceIconBitmap;
     Bitmap mBitmap;
     public static int mWidth;
@@ -62,6 +69,9 @@ public class CameraOverlayview extends View implements SensorEventListener {
 
     // CameraActivity mContext;
     // MainActivity mainActivity;
+
+
+
 
     public CameraOverlayview(Context context) {
         super(context);
@@ -81,8 +91,12 @@ public class CameraOverlayview extends View implements SensorEventListener {
 
     }
 
+
     private void drawGrid(double tAx, double tAy, double tBx, double tBy,
-                          Canvas pCanvas, Paint pPaint) {
+                          Canvas pCanvas, Paint pPaint,double distance) {
+
+
+
 
         // TODO Auto-generated method stub
 
@@ -93,7 +107,7 @@ public class CameraOverlayview extends View implements SensorEventListener {
         float mRDegree = mRCompassDegree;
 
         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.kok);
-        mBitmap = Bitmap.createScaledBitmap(mBitmap, mWidth/8, mHeight/4 , true);
+        mBitmap = Bitmap.createScaledBitmap(mBitmap, mWidth / 8, mHeight / 4, true);
         pCanvas.drawBitmap(mBitmap, (mWidth*3/7), (mHeight*3/5), null);
 
         // 4/4분면을 고려하여 0~360도가 나오게 설정
@@ -141,7 +155,7 @@ public class CameraOverlayview extends View implements SensorEventListener {
 
                     // icon의  핸드폰 디스플레이 위치값(값이 변경될때마다 흔들림)
                     // 두 위치간의 거리를 계산함
-                    Location locationA = new Location("Point A");
+                    /*Location locationA = new Location("Point A");
                     Location locationB = new Location("Point B");
 
                     locationA.setLongitude(tAx);
@@ -151,7 +165,7 @@ public class CameraOverlayview extends View implements SensorEventListener {
                     locationB.setLatitude(tBy);
 
 
-                    int distance = (int) locationA.distanceTo(locationB);
+                    int distance = (int) locationA.distanceTo(locationB);*/
 
                     Bitmap tIconBitmap = mPalaceIconBitmap;
                     int iconWidth, iconHeight;
@@ -214,12 +228,6 @@ public class CameraOverlayview extends View implements SensorEventListener {
             mYCompassDegree = lowPass(pitchAngle, mYCompassDegree);
             mRCompassDegree = lowPass(rollAnlge, mRCompassDegree);
 
-            //Log.d(TAG, "Heading=" + String.valueOf(mXCompassDegree));
-            //Log.d(TAG, "pitch=" + String.valueOf(mYCompassDegree));
-            //Log.d(TAG, "roll=" + String.valueOf( mRCompassDegree));
-
-            //this.invalidate();
-
         } else if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             xAxis = sensorEvent.values[0];
             yAxis = sensorEvent.values[1];
@@ -230,11 +238,6 @@ public class CameraOverlayview extends View implements SensorEventListener {
             mLowPassY = lowPass(yAxis, mLowPassY);
             mLowPassZ = lowPass(zAxis, mLowPassZ);
 
-            //Log.d(TAG, "xAxis=" + String.valueOf(mLowPassX));
-            //Log.d(TAG, "yAxis=" + String.valueOf(mLowPassY));
-            //Log.d(TAG, "zAxis=" + String.valueOf(mLowPassZ));
-
-            //this.invalidate();
         }
     }
 
@@ -288,19 +291,15 @@ public class CameraOverlayview extends View implements SensorEventListener {
         tAy=sta_latitude;//현위치 위도좌표
         tBx= des_longitude;//임의 경도좌표
         tBy= des_latitude;//임의 위도 좌표
-
-        //Log.d(TAG, "sta_ly=" + String.valueOf(tAx));  // 값이 들어가있나 확인용
-        //Log.d(TAG, "sta_lx=" + String.valueOf(tAy));  // 동일
-        //Log.d(TAG, "des_ly=" + String.valueOf(tBx));  // 값이 들어가있나 확인용
-        //Log.d(TAG, "des_lx=" + String.valueOf(tBy));  // 동일
-
-        drawGrid(tAx,tAy,tBx,tBy,canvas,mPaint);//이미지 그려주기
+        //drawGrid(tAx,tAy,tBx,tBy,canvas,mPaint);//이미지 그려주기
+        drawGrid(tAx, tAy, tBx, tBy, canvas, mPaint, distance);
 
     }
-    public void setCurrentPoint(double latitude_st, double longitude_st)//현위치 좌표 정보 얻기
+    public void setCurrentPoint(double latitude_st, double longitude_st,double distance)//현위치 좌표 정보 얻기
     {
         this.sta_latitude=latitude_st;
         this.sta_longitude=longitude_st;
+        this.distance=distance;
         Log.d(TAG, "sta_la=" + String.valueOf(sta_latitude));  // 값이 들어가있나 확인용
         Log.d(TAG, "sta_lo=" + String.valueOf(sta_longitude));  // 동일
     }
@@ -318,8 +317,12 @@ public class CameraOverlayview extends View implements SensorEventListener {
         // TODO Auto-generated method stub
         mWidth = width;
         mHeight = height;
-
     }
 
+    public void setdata(String nodetype)
+    {
+        this.nodetype=nodetype;
+        Log.e("Node",this.nodetype);
+    }
 
 }

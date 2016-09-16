@@ -5,9 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by 경석 on 2016-09-08.
@@ -19,22 +23,23 @@ public class CameraActivity extends Activity {
     CameraOverlayview mOverlayview=null;
     public static String latitude_ds;
     public static String longitude_ds;
-
+    ArrayList<NodeData> node;
     //LocationManager GpslocationManager;
     //LocationListener GpslocationListener;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mOverlayview=new CameraOverlayview(this);
-
-
         Intent intent = getIntent();
         latitude_ds = intent.getStringExtra("latitude_id");
         longitude_ds = intent.getStringExtra("longitude_id");
         // latitude_st = intent.getStringExtra("st_latitude_id");
         // longitude_st = intent.getStringExtra("st_longitude_id");
-
+        node = (ArrayList<NodeData>) intent.getSerializableExtra("node");
         //Toast.makeText(getApplicationContext(), ""+latitude_st+","+longitude_st+"", Toast.LENGTH_SHORT).show();
+
+        mOverlayview.setdata(node.get(0).nodeType);
+
 
         //mOverlayview.setCurrentPoint(Double.parseDouble(latitude_st),Double.parseDouble(longitude_st));  // 현재위치 값 overlayview 전송
         mOverlayview.setDestinationPoint(Double.parseDouble(latitude_ds), Double.parseDouble(longitude_ds));  // 목적지 값 overlayview 전송

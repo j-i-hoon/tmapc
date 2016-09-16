@@ -1,60 +1,43 @@
 package com.example.kimkim2.tmapc;
 
-        import android.content.Context;
-        import android.content.DialogInterface;
-        import android.content.Intent;
-        import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.graphics.Color;
-        import android.location.Address;
-        import android.location.Geocoder;
-        import android.location.Location;
-        import android.location.LocationListener;
-        import android.location.LocationManager;
-        import android.os.Bundle;
-        import android.support.v7.app.AlertDialog;
-        import android.support.v7.app.AppCompatActivity;
-        import android.util.Log;
-        import android.view.View;
-        import android.widget.Button;
-        import android.widget.EditText;
-        import android.widget.RelativeLayout;
-        import android.widget.Toast;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.skp.Tmap.TMapData;
+import com.skp.Tmap.TMapPOIItem;
+import com.skp.Tmap.TMapPoint;
+import com.skp.Tmap.TMapPolyLine;
+import com.skp.Tmap.TMapView;
 
-        import com.skp.Tmap.TMapData;
-        import com.skp.Tmap.TMapPOIItem;
-        import com.skp.Tmap.TMapPoint;
-        import com.skp.Tmap.TMapPolyLine;
-        import com.skp.Tmap.TMapView;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-        import org.w3c.dom.Document;
-        import org.w3c.dom.Element;
-        import org.w3c.dom.NamedNodeMap;
-        import org.w3c.dom.Node;
-        import org.w3c.dom.NodeList;
-        import org.xmlpull.v1.XmlPullParser;
-        import org.xmlpull.v1.XmlPullParserFactory;
-
-        import java.io.ByteArrayInputStream;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.net.MalformedURLException;
-        import java.util.ArrayList;
-        import java.util.Date;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Locale;
-        import java.util.Map;
-        import java.util.logging.LogManager;
-
-        import javax.xml.parsers.DocumentBuilder;
-        import javax.xml.parsers.DocumentBuilderFactory;
-
+import java.io.Serializable;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    String TAG = "PAAR";
+    String TAG="PAAR";
+    String Distance;
     TMapView mMapView = null;
     RelativeLayout mapContainer = null;
     EditText my_location;
@@ -65,26 +48,38 @@ public class MainActivity extends AppCompatActivity {
     Context mContext;
     Geocoder coder;
     CameraOverlayview mOverlayview;
-    public static double latitude_plic;
-    public static double longitude_plic;
-    public static double des_latitude_plic;
-    public static double des_longitude_plic;
+    public static double latitude_plic ;
+    public static double longitude_plic ;
+    public static double des_latitude_plic ;
+    public static double des_longitude_plic ;
+    public static TMapPoint point2;
+    public static  double Ddistance;
+    public static List<NodeData> nodeDatas=new ArrayList<NodeData>();
+
 
     class MyListenerClass implements View.OnClickListener {
         public void onClick(View v) {
             if (v.getId() == R.id.search) {
-                //Intent intent = new Intent(MainActivity.this,Listview.class);
-                //startActivity(intent);
                 findAllPoi();
-            } else if (v.getId() == R.id.VR) {
-                List<Address> des_location = null;
-                String end = my_destination.getText().toString().replace("[", "").replace("]", "").replace(")", "").replace("(", "").trim();
-                Toast.makeText(getApplicationContext(), "도착지 : " + end, Toast.LENGTH_SHORT).show();
+            }
+            else if (v.getId() == R.id.VR)
+            {
+                String end = my_destination.getText().toString();
 
                 if (end == null || end.length() == 0) {
                     showToast("검색어가 입력되지 않았습니다.");
                     return;
                 }
+                Toast.makeText(getApplicationContext(), "도착지 : " + end, Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(MainActivity.this,CameraActivity.class);
+                intent.putExtra("latitude_id",String.valueOf(des_latitude_plic));  // CameraOverlayview 에 목적지값 전송 - cameraActivity 통해서 경유
+                intent.putExtra("longitude_id",String.valueOf(des_longitude_plic ));
+                intent.putExtra("node",(Serializable)nodeDatas);
+                startActivity(intent);
+
+                  /*
+                List<Address> des_location = null;
                 try {    //  도착위치 값 지오코딩.
                     des_location = coder.getFromLocationName(end, 5);
                 } catch (NumberFormatException e) {
@@ -94,34 +89,19 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 des_latitude_plic = des_location.get(0).getLatitude();
-                des_longitude_plic = des_location.get(0).getLongitude();
+                des_longitude_plic = des_location.get(0).getLongitude();*/
 
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                intent.putExtra("latitude_id", String.valueOf(des_latitude_plic));  // CameraOverlayview 에 목적지값 전송 - cameraActivity 통해서 경유
-                intent.putExtra("longitude_id", String.valueOf(des_longitude_plic));
-                startActivity(intent);
-
-            } else if (v.getId() == R.id.road) {
-                List<Address> des_location = null;
-                String query = my_destination.getText().toString().replace("[", "").replace("]", "").replace(")", "").replace("(", "").trim();
+            }
+            else if (v.getId() == R.id.road)
+            {
+                String query = my_destination.getText().toString();
                 if (query == null || query.length() == 0) {
                     showToast("검색어가 입력되지 않았습니다.");
                     return;
                 }
 
-                try {    //  도착위치 값 지오코딩.
-                    des_location = coder.getFromLocationName(query, 5);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "입출력오류 :" + e.getMessage() + "", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-                des_latitude_plic = des_location.get(0).getLatitude();
-                des_longitude_plic = des_location.get(0).getLongitude();
-
-                naviGuide();
                 drawPedestrianPath();
+                naviGuide();
             }
         }
     }
@@ -133,15 +113,15 @@ public class MainActivity extends AppCompatActivity {
 
         mMapView = new TMapView(this);
         mapContainer.addView(mMapView);
-        mMapView.setSKPMapApiKey("17a82275-ae41-30b6-8ad4-67f929b71596");
-        mMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
-        mMapView.setMapType(TMapView.MAPTYPE_STANDARD);
-        mMapView.setIconVisibility(true);
+        mMapView.setSKPMapApiKey("a9125b4b-89ae-37f1-9eb1-21dfdc5fb1d7");
+        mMapView.setLanguage(TMapView.LANGUAGE_KOREAN);  // 지도 언어 설정
+        mMapView.setMapType(TMapView.MAPTYPE_STANDARD);  // 지도 타입 표준
+        mMapView.setIconVisibility(true);    // 현재위치 아이콘을 나타낼 것인지 표시
         mMapView.setZoomLevel(17);
         mMapView.MapZoomIn();
         mMapView.MapZoomOut();
         my_location = (EditText) findViewById(R.id.start_edit);
-        my_location.setEnabled(false);
+        my_location.setEnabled(false);  // 입력 불가.
         my_destination = (EditText) findViewById(R.id.destination_edit); // 검색창
         my_destination.setEnabled(false);
         Search = (Button) findViewById(R.id.search); // 검색버튼
@@ -149,12 +129,21 @@ public class MainActivity extends AppCompatActivity {
         VR = (Button) findViewById(R.id.VR);  // VR버튼
         mContext = this;
         Intent intent = getIntent();
-        my_destination.setText(intent.getStringExtra("des_info"));
+        my_destination.setText(intent.getStringExtra("des_info")); // listview 에서 돌아온 도착지 name
+        Double la_point = intent.getDoubleExtra("point_la",0);       // listview 에서 돌아온 위도, 경도
+        Double lo_point = intent.getDoubleExtra("point_lo",0);
+        des_latitude_plic = la_point;
+        des_longitude_plic = lo_point;
+        Log.d(TAG, "des=" + String.valueOf( des_latitude_plic));
+        Log.d(TAG, "des=" + String.valueOf( des_longitude_plic));
+
+
         mOverlayview = new CameraOverlayview(this);
         coder = new Geocoder(getApplicationContext(), Locale.KOREA);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.poi_star);
-        mMapView.setIcon(bitmap);
+        //Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.run);
+        //Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+        //mMapView.setIcon(bitmap);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -163,7 +152,12 @@ public class MainActivity extends AppCompatActivity {
 
                 latitude_plic = location.getLatitude();
                 longitude_plic = location.getLongitude();
-                mOverlayview.setCurrentPoint(latitude_plic, longitude_plic);  // 현재위치 업데이트를 위해 mOverlayview에 값 전송
+                Log.d(TAG, "qwe2 = " + String.valueOf(point2));
+                if(point2 != null)
+                {
+                    drawPedestrianPath();
+                }
+                mOverlayview.setCurrentPoint(latitude_plic,longitude_plic,Ddistance);  // 현재위치 업데이트를 위해 mOverlayview에 값 전송
 
                 my_location.setText("현 위치");
                 mMapView.setCenterPoint(longitude_plic, latitude_plic);
@@ -186,66 +180,126 @@ public class MainActivity extends AppCompatActivity {
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 3, locationListener);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 3, locationListener);
+
         MyListenerClass buttonListener = new MyListenerClass();
         Search.setOnClickListener(buttonListener);
         roadservice.setOnClickListener(buttonListener);
         VR.setOnClickListener(buttonListener);
     }
 
+    public void findAllPoi() {  // 검색 함수
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);  // 팝업창을 띄워주기 위해 생성
+        builder.setTitle("Guide road Search part,,");
+
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        builder.setPositiveButton("검색", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String strData = input.getText().toString();
+                TMapData tmapdata = new TMapData();
+
+                tmapdata.findAllPOI(strData, new TMapData.FindAllPOIListenerCallback() {
+                    @Override
+                    public void onFindAllPOI(ArrayList<TMapPOIItem> poiItem) {
+                        Intent intent = new Intent(MainActivity.this,Listview.class);
+                        ArrayList<String> search_list = new ArrayList<String>();
+                        ArrayList<String> point_list = new ArrayList<String>();
+
+                        for (int i = 0; i < poiItem.size(); i++) {
+                            TMapPOIItem  item = poiItem.get(i);
+                            String[] address = new String[poiItem.size()];
+                            String[] point = new String[poiItem.size()];
+                            address[i] = String.valueOf(item.getPOIName().toString());
+                            point[i] =  String.valueOf(item.getPOIPoint().toString());
+                            search_list.add(address[i]);
+                            point_list.add(point[i]);
+
+                            intent.putExtra("address",search_list);
+                            intent.putExtra("point",point_list);
+                        }
+                        startActivity(intent);
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();  // 취소시 팝업창 닫기
+            }
+        });
+        builder.show();
+    }
 
 
+    public void drawPedestrianPath()   // 길찾기 함수
+    {
+        final TMapPoint point1 = new TMapPoint(latitude_plic,longitude_plic);
+        /*final TMapPoint*/ point2 = new TMapPoint(des_latitude_plic,des_longitude_plic);
 
 
+        TMapData tmapdata = new TMapData();
+        tmapdata.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, point1, point2, new TMapData.FindPathDataListenerCallback() {
 
+            public void onFindPathData(TMapPolyLine polyLine) {
+                polyLine.setLineColor(Color.BLUE);
+                polyLine.setLineWidth(10);
+                Ddistance = polyLine.getDistance();
+/*
+                if (Ddistance < 1000.0)
+                {
+                    String distance = longDouble2String(0,Ddistance);
+                   // Distance = distance + "m";
+                    //Log.d(TAG, "m = " + Distance);
+                }
+                else if(Ddistance >= 1000.0)
+                {
+                    float fDistance = (float) Ddistance / 1000;
+                    String fdistance = longDouble2String(1,fDistance);
+                    //Distance = fdistance + "km";
+                    //Log.d(TAG, "km = " + Distance);
+                }
+*/
+                mMapView.addTMapPath(polyLine);
 
+            }
+        });
+    }
 
     public void naviGuide() {
         TMapPoint point1 = new TMapPoint(latitude_plic, longitude_plic);
         TMapPoint point2 = new TMapPoint(des_latitude_plic, des_longitude_plic);
         TMapData tmapdata = new TMapData();
-        final List<NodeData> nodeDatas=new ArrayList<NodeData>();
+        mMapView.zoomToTMapPoint ( point1,point2 );  // 자동 zoomlevel 조정
+
 
         tmapdata.findPathDataAllType(TMapData.TMapPathType.PEDESTRIAN_PATH,point1, point2, new TMapData.FindPathDataAllListenerCallback(){
             @Override
             public void onFindPathDataAll(Document doc) {
                 doc.getDocumentElement().normalize();
                 Element root = doc.getDocumentElement();
-
                 int length = root.getElementsByTagName("Placemark").getLength();
                 for(int i=0; i<length; i++) {
                     String a="";
                     Node placemark = root.getElementsByTagName("Placemark").item(i);
                     Node tmapindex = ((Element)placemark).getElementsByTagName("tmap:index").item(0);
                     String index=tmapindex.getTextContent();
-                    //Log.e("PARSER", "tmap Index =" + tmapindex.getTextContent());
                     Node nodeType = ((Element)placemark).getElementsByTagName("tmap:nodeType").item(0);
-                    //Log.e("PARSER", "nodeType =" + nodeType.getTextContent());
                     String nodetype=nodeType.getTextContent();
                     Node coordinate = ((Element)placemark).getElementsByTagName("coordinates").item(0);
-                    //Log.e("PARSER", "coordinate =" + coordinate.getTextContent());
                     String coordinates=coordinate.getTextContent();
                     if(nodeType.getTextContent().equals("POINT")) {
                         Node turnType
                                 = ((Element) placemark).getElementsByTagName("tmap:turnType").item(0);
                         a = Turntype(turnType.getTextContent());
-                        //Log.e("PARSER", "point 지점에서 =" + Turntype(a));
                         nodeDatas.add(new NodeData(index,nodetype,coordinates,a));
                     }
                     else nodeDatas.add(new NodeData(index, nodetype, coordinates));
+
                 }
-
-                Log.d("NODE","index :"+nodeDatas.get(0).index);
-                Log.d("NODE","nodetype :"+nodeDatas.get(0).nodeType);
-                Log.d("NODE","coordinate :"+nodeDatas.get(0).coordinate);
-                Log.d("NODE","turntype :"+nodeDatas.get(0).turntype);
-
-
-                Log.d("NODE","index :"+nodeDatas.get(1).index);
-                Log.d("NODE","nodetype :"+nodeDatas.get(1).nodeType);
-                Log.d("NODE","coordinate :"+nodeDatas.get(1).coordinate);
-                Log.d("NODE","turntype :"+nodeDatas.get(1).turntype);
-
-
             }
         });
     }
@@ -288,71 +342,26 @@ public class MainActivity extends AppCompatActivity {
         return c;
     }
 
-
-
-    public void findAllPoi() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Guide road Search part,,");
-
-        final EditText input = new EditText(this);
-        builder.setView(input);
-
-        builder.setPositiveButton("검색", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final String strData = input.getText().toString();
-                TMapData tmapdata = new TMapData();
-
-                tmapdata.findAllPOI(strData, new TMapData.FindAllPOIListenerCallback() {
-                    @Override
-                    public void onFindAllPOI(ArrayList<TMapPOIItem> poiItem) {
-                        Intent intent = new Intent(MainActivity.this, Listview.class);
-                        ArrayList<String> search_list = new ArrayList<String>();
-
-                        for (int i = 0; i < poiItem.size(); i++) {
-                            TMapPOIItem item = poiItem.get(i);
-                            String[] address = new String[poiItem.size()];
-                            address[i] = String.valueOf(item.getPOIName().toString());
-                            search_list.add(address[i]);
-                            intent.putExtra("address", search_list);
-                        }
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+    /*public static void getNode(Node n) {
+        for (Node ch = n.getFirstChild(); ch != null; ch = ch.getNextSibling()) {
+            if (ch.getNodeType() == Node.ELEMENT_NODE) {
+                System.out.println(ch.getNodeName());
+                getNode(ch);
+            } else if (ch.getNodeType() == Node.TEXT_NODE && ch.getNodeValue().trim().length() != 0) {
+                System.out.println(ch.getNodeValue());
             }
-        });
-        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        builder.show();
+        }
+    }*/
+    public static String longDouble2String(int size, double value) {   // 소수점 이하 자리를 짜르는 함수
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(size);
+        nf.setGroupingUsed(false);
+        return nf.format(value);
     }
-
-    public void drawPedestrianPath() {
-        TMapPoint point1 = new TMapPoint(latitude_plic, longitude_plic);
-        TMapPoint point2 = new TMapPoint(des_latitude_plic, des_longitude_plic);
-
-        TMapData tmapdata = new TMapData();
-        tmapdata.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, point1, point2, new TMapData.FindPathDataListenerCallback() {
-
-            public void onFindPathData(TMapPolyLine polyLine) {
-                polyLine.setLineColor(Color.BLUE);
-                mMapView.addTMapPath(polyLine);
-            }
-        });
-
-
-    }
-
 
     private void showToast(String s) {
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
     }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -369,6 +378,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-
-
-
