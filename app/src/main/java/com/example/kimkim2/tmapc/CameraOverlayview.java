@@ -59,6 +59,7 @@ public class CameraOverlayview extends View implements SensorEventListener {
     int mShadowXMargin;
     int mShadowYMargin;
     Paint mShadowPaint;
+    Paint mTextPaint;
     int mVisibleDistance = 10;
     float mXCompassDegree;
     float mYCompassDegree;
@@ -106,7 +107,24 @@ public class CameraOverlayview extends View implements SensorEventListener {
         mBitmap = Bitmap.createScaledBitmap(mBitmap, mWidth / 8, mHeight / 4, true);
         pCanvas.drawBitmap(mBitmap, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
         //pCanvas.drawText(turntype,1000,1000,paint);
-        pCanvas.drawText(turntype, (mWidth * 4 / 7), (mHeight * 2 / 5), mShadowPaint);
+
+        mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTextPaint.setColor(Color.WHITE);
+        mTextPaint.setTextSize(35);
+
+        if(turntype != null)
+        {
+            pCanvas.drawText(turntype, (mWidth * 5 / 11), (mHeight * 2 / 5), mTextPaint);
+            //Toast.makeText(getApplicationContext(), "10m 후에 "+ turntype, Toast.LENGTH_SHORT).show(); getApplicationContext()에서 오류!
+            if(turntype == "좌회전") {
+                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reft);
+                pCanvas.drawBitmap(mBitmap, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+            }
+            else if(turntype == "우회전") {
+                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.right);
+                pCanvas.drawBitmap(mBitmap, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+            }
+        }
 
 
         // 4/4분면을 고려하여 0~360도가 나오게 설정
@@ -325,10 +343,10 @@ public class CameraOverlayview extends View implements SensorEventListener {
         this.nodelan = nodelan;
         this.nodelon = nodelon;
         this.turntype = turntype;
-        Log.e("Node", "index=" + this.index);
-        Log.e("Node", "nodetype=" + this.nodetype);
-        Log.e("Node", "nodelon=" + String.valueOf(this.nodelon));
-        Log.e("Node", "nodelan=" + String.valueOf(this.nodelan));
-        Log.e("Node", "turntype=" + this.turntype);
+        Log.e("Node", "index2=" + this.index);
+        Log.e("Node", "nodetype2=" + this.nodetype);
+        Log.e("Node", "nodelon2=" + String.valueOf(this.nodelon));
+        Log.e("Node", "nodelan2=" + String.valueOf(this.nodelan));
+        Log.e("Node", "turntype2=" + this.turntype);
     }
 }
