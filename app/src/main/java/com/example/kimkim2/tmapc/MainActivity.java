@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     Geocoder coder;
     CameraOverlayview mOverlayview;
     CameraActivity mCameraActivity;
-    public  static double latitude_plic ;
+    public static double latitude_plic ;
     public static double longitude_plic ;
     public static double des_latitude_plic ;
     public static double des_longitude_plic ;
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;  // 타 액티비티에서 접근 가능하게 함.
         Intent intent = getIntent();
         my_destination.setText(intent.getStringExtra("des_info")); // listview 에서 돌아온 도착지 name
-        final Double la_point = intent.getDoubleExtra("point_la",0);       // listview 에서 돌아온 위도, 경도
+        Double la_point = intent.getDoubleExtra("point_la",0);       // listview 에서 돌아온 위도, 경도
         Double lo_point = intent.getDoubleExtra("point_lo",0);
         des_latitude_plic = la_point;
         des_longitude_plic = lo_point;
@@ -142,9 +142,6 @@ public class MainActivity extends AppCompatActivity {
         mCameraActivity = new CameraActivity();
         coder = new Geocoder(getApplicationContext(), Locale.KOREA);
 
-        //Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.run);
-        //Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-        //mMapView.setIcon(bitmap);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -158,13 +155,10 @@ public class MainActivity extends AppCompatActivity {
                 {
                     drawPedestrianPath();
                 }
-                Log.d(TAG,"mainactivity sta_la="+latitude_plic);
-                Log.d(TAG,"mainactivity sta_lo="+longitude_plic);
-                mOverlayview.setCurrentPoint(latitude_plic, longitude_plic, Ddistance);  // 현재위치 업데이트를 위해 mOverlayview에 값 전송
-                mCameraActivity.setCurrent(latitude_plic, longitude_plic);
+                mOverlayview.setCurrentPoint(latitude_plic,longitude_plic,Ddistance);  // 현재위치 업데이트를 위해 mOverlayview에 값 전송
+                mCameraActivity.setCurrent(latitude_plic,longitude_plic);
 
                 my_location.setText("현 위치");
-
                 mMapView.setCenterPoint(longitude_plic, latitude_plic);
                 mMapView.setLocationPoint(longitude_plic, latitude_plic);
                 mMapView.setTrackingMode(true);
@@ -183,8 +177,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 3, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 3, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 3, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 3, locationListener);
 
         MyListenerClass buttonListener = new MyListenerClass();
         Search.setOnClickListener(buttonListener);
@@ -344,13 +338,6 @@ public class MainActivity extends AppCompatActivity {
 
         return c;
     }
-
-    /*public static String longDouble2String(int size, double value) {   // 소수점 이하 자리를 짜르는 함수
-        NumberFormat nf = NumberFormat.getNumberInstance();
-        nf.setMaximumFractionDigits(size);
-        nf.setGroupingUsed(false);
-        return nf.format(value);
-    }*/
 
     private void showToast(String s) {
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();

@@ -9,14 +9,14 @@ import android.view.SurfaceView;
 /**
  * Created by 경석 on 2016-09-08.
  */
-public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback{
 
     String TAG = "PAAR";
     SurfaceHolder previewHolder;
     Camera camera;
     boolean inPreview;
 
-    public CameraPreview(Context context) {
+    public CameraPreview(Context context){
         super(context);
 
         inPreview = false;
@@ -29,13 +29,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
-        if (camera == null) {
+        if(camera == null) {
             camera = Camera.open();
         }
-        try {
+        try{
             previewHolder.setKeepScreenOn(true);//화면 켜짐 유지
             camera.setPreviewDisplay(previewHolder);
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Log.e(TAG, "Exception in setPreviewDisplay()", t);//오류 시 로그 출력
         }
     }
@@ -46,11 +48,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         camera.startPreview();
         inPreview = true;
     }
-
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         //SurfaceView가 종료될때 호출
         camera.stopPreview();
         camera.release();
+        camera=null;
     }
-}
+};
