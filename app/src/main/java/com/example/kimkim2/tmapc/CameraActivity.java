@@ -77,9 +77,9 @@ public class CameraActivity extends Activity {
 
                 count = a;
 
-                if(distance < 10) // 10m(오차범위) 이내가 되면 노드정보를 overlayview에 전송
+                if(distance < 80) // 10m(오차범위) 이내가 되면 노드정보를 overlayview에 전송
                 {
-                    mOverlayview.setdata(node.get(a).index, node.get(a).nodeType, nodelan, nodelon, node.get(a).turntype);
+                    mOverlayview.setdata(node.get(a).index, node.get(a).nodeType, nodelan, nodelon, node.get(a).turntype,distance);
                     check(a + 1);
                 }
                 else {
@@ -93,7 +93,7 @@ public class CameraActivity extends Activity {
                     check(a + 1);
                 }*/
             }
-            else {
+            else if(node.get(a).nodeType.equals("LINE")){
                 check(a + 1);
             }
         }
@@ -127,12 +127,13 @@ public class CameraActivity extends Activity {
     {
         public  void run()
         {
-            while(!stopflag) {
+            while (!stopflag) {
                 try {
                     Thread.sleep(3000);
                     check(count);// 3초 뒤에 실행
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+
                 }
             }
         }

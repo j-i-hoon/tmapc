@@ -3,6 +3,7 @@ package com.example.kimkim2.tmapc;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * Created by 경석 on 2016-09-08.
@@ -51,8 +53,11 @@ public class CameraOverlayview extends View implements SensorEventListener {
     public static double des_latitude;
     public static double des_longitude;
     public static double distance;
-    Bitmap mPalaceIconBitmap;
+    public static int nodeDistace;
+    Bitmap LeftIcon;
+    Bitmap RigftIcon;
     Bitmap mBitmap;
+    Bitmap mPalaceIconBitmap;
     public static int mWidth;
     public static int mHeight;
     Paint mPaint;
@@ -69,11 +74,10 @@ public class CameraOverlayview extends View implements SensorEventListener {
     // CameraActivity mContext;
     // MainActivity mainActivity;
 
-
     public CameraOverlayview(Context context) {
         super(context);
-        //mContext = (CameraActivity) context;
         //mainActivity = (MainActivity) context;
+
         initBitamaps();
         initSensor(context);
         initPaints();
@@ -85,6 +89,13 @@ public class CameraOverlayview extends View implements SensorEventListener {
                 R.drawable.place);
         mPalaceIconBitmap = Bitmap.createScaledBitmap(mPalaceIconBitmap, 100,
                 100, true);
+
+        LeftIcon = BitmapFactory.decodeResource(getResources(), R.drawable.reft);
+        LeftIcon=Bitmap.createScaledBitmap(LeftIcon,100,100,true);
+        RigftIcon = BitmapFactory.decodeResource(getResources(), R.drawable.right);
+        RigftIcon=Bitmap.createScaledBitmap(RigftIcon,100,100,true);
+
+
 
     }
 
@@ -114,15 +125,13 @@ public class CameraOverlayview extends View implements SensorEventListener {
 
         if(turntype != null)
         {
-            pCanvas.drawText(turntype, (mWidth * 5 / 11), (mHeight * 2 / 5), mTextPaint);
-            //Toast.makeText(getApplicationContext(), "10m 후에 "+ turntype, Toast.LENGTH_SHORT).show(); getApplicationContext()에서 오류!
-            if(turntype == "좌회전") {
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reft);
-                pCanvas.drawBitmap(mBitmap, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+            if(turntype.equals("좌회전")) {
+                pCanvas.drawBitmap(LeftIcon, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+                pCanvas.drawText(nodeDistace + "후에" + turntype, (mWidth * 5 / 11), (mHeight * 2 / 5), mTextPaint);
             }
-            else if(turntype == "우회전") {
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.right);
-                pCanvas.drawBitmap(mBitmap, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+            else if(turntype.equals("우회전")) {
+                pCanvas.drawBitmap(RigftIcon, (mWidth * 3 / 7), (mHeight * 3 / 5), null);
+                pCanvas.drawText(nodeDistace+"후에"+turntype, (mWidth * 5 / 11), (mHeight * 2 / 5), mTextPaint);
             }
         }
 
@@ -303,10 +312,14 @@ public class CameraOverlayview extends View implements SensorEventListener {
 
     public void getLocation(Canvas canvas) {
         double tAx, tAy, tBx, tBy;
+        int nodedis=nodeDistace;
+        String turn = turntype;
         tAx = sta_longitude;//현위치 경도좌표
         tAy = sta_latitude;//현위치 위도좌표
         tBx = des_longitude;//임의 경도좌표
         tBy = des_latitude;//임의 위도 좌표
+
+
         //drawGrid(tAx,tAy,tBx,tBy,canvas,mPaint);//이미지 그려주기
         drawGrid(tAx, tAy, tBx, tBy, canvas, mPaint, distance);
 
@@ -337,16 +350,20 @@ public class CameraOverlayview extends View implements SensorEventListener {
         mHeight = height;
     }
 
-    public void setdata(String index, String nodetype, Double nodelan, Double nodelon, String turntype) {
+
+    public void setdata(String index, String nodetype, Double nodelan, Double nodelon, String turntype, int distance) {
         this.index = index;
         this.nodetype = nodetype;
         this.nodelan = nodelan;
         this.nodelon = nodelon;
         this.turntype = turntype;
+        this.nodeDistace=distance;
         Log.e("Node", "index2=" + this.index);
         Log.e("Node", "nodetype2=" + this.nodetype);
         Log.e("Node", "nodelon2=" + String.valueOf(this.nodelon));
         Log.e("Node", "nodelan2=" + String.valueOf(this.nodelan));
         Log.e("Node", "turntype2=" + this.turntype);
+        Log.e("Node", "distatncee=" + this.nodeDistace);
+
     }
 }
